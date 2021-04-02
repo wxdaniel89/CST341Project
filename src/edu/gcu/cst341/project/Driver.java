@@ -7,10 +7,18 @@ public class Driver {
 		gcu.open();
 
 	}
+
 	
 	// Bruce Brown
 	public static void helloB() {
 		System.out.println("This is Bruce");
 	}
+
+	//Daniel Rumfelt
+	public static void helloD() {
+		System.out.println("Hi Im Daniel");
+	}
+	
+
 
 }
