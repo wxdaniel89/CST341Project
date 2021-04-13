@@ -51,7 +51,7 @@ public class MyStore {
 
 		String sql = "SELECT UserId, UserFirstName FROM users WHERE UserName = ? AND UserPassword = ? AND UserStatus = 1";
 
-		try (PreparedStatement ps = DBConnect.getConnection().prepareStatement(sql)) {
+		try (PreparedStatement ps = con.getConnection().prepareStatement(sql)) {
 			ps.setString(1, login[0]);
 			ps.setString(2, login[1]);
 			ResultSet rs = ps.executeQuery();
@@ -159,17 +159,19 @@ public class MyStore {
 		String p_Status = sc.nextLine();
 
 		String sql_command = "INSERT INTO cst341nproject.products (product_Id, product_Name, "
-				+ "product_Price, product_Stock_Status) VALUE (?,?,?,?);";
+				+ "product_Price, product_Stock_Stadus) VALUE (?,?,?,?);";
 
-		PreparedStatement initiate = ((Connection) con).prepareStatement(sql_command);
+		try (PreparedStatement initiate = con.getConnection().prepareStatement(sql_command)) {
 
-		initiate.setInt(1, p_Id);
-		initiate.setString(2, p_Name);
-		initiate.setString(3, p_Price);
-		initiate.setString(4, p_Status);
-
-		initiate.executeUpdate();
-		System.out.println(initiate);
+			initiate.setInt(1, p_Id);
+			initiate.setString(2, p_Name);
+			initiate.setString(3, p_Price);
+			initiate.setString(4, p_Status);
+			initiate.executeUpdate();
+			System.out.println(initiate);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 	}
 
@@ -177,13 +179,20 @@ public class MyStore {
 		System.out.println("View (Read) all products...");
 		System.out.println();
 
-		String sql_command = "SELECT product_Id, Product_Name, product_Price, product_Stock_Status FROM cst341nproject.products;";
+		String sql_command = "SELECT product_Id, product_Name, product_Price, product_Stock_Stadus FROM cst341nproject.products;";
 
-		java.sql.Statement state = ((Connection) con).createStatement();
+		try (PreparedStatement initiate = con.getConnection().prepareStatement(sql_command)) {
 
-		ResultSet results = state.executeQuery(sql_command);
-		System.out.println("All Products: " + results.getString("product_Id") + results.getString("product_Name")
-				+ results.getString("product_Price") + results.getString("product_Stock_Status"));
+			ResultSet list = initiate.executeQuery();
+			while (list.next()) {
+				System.out.println("All Products: " + list.getInt("product_Id") + " " + list.getString("product_Name")
+						+ " " + list.getString("product_Price") + " " + list.getString("product_Stock_Stadus"));
+			}
+		}
+
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 
 	}
 
@@ -200,16 +209,18 @@ public class MyStore {
 		sc.nextLine();
 
 		// 2] Connect to DB and get current credentials
-		String sql = "SELECT product_Id, product_Name, product_Price, product_Stock_Status"
+		String sql = "SELECT product_Id, product_Name, product_Price, product_Stock_Stadus"
 				+ " FROM cst341nproject.products WHERE product_Id = ?";
-		PreparedStatement ps = ((Connection) con).prepareStatement(sql);
-		ps.setInt(1, id);
-		ResultSet results = ps.executeQuery();
-		results.next();
+		try (PreparedStatement initiate = con.getConnection().prepareStatement(sql)){
 
+			initiate.setInt(1, id);
+			ResultSet results = initiate.executeQuery();
+			results.next();
+			
+			
 		// 3] Display the current credentials while asking for new info
 
-		System.out.println("Update Product Id Number : [" + results.getString("product_Id") + "] ? : ");
+		System.out.println("Update Product Id Number : [" + results.getInt("product_Id") + "] ? : ");
 		int p_Id = sc.nextInt();
 		sc.nextLine();
 		System.out.println("Update Product Name : [" + results.getString("product_Name") + "] ? : ");
@@ -217,43 +228,62 @@ public class MyStore {
 		System.out.println("Update Product Price : [" + results.getString("product_Price") + "] ? : ");
 		String p_Price = sc.nextLine();
 		System.out.println("Update Inventory Status [true] = In stock [false] = Out of Stock : ["
-				+ results.getString("product_Stock_Status") + "] ? : ");
+				+ results.getString("product_Stock_Stadus") + "] ? : ");
 		String inventory = sc.nextLine();
 
 		// 4] Write the updated credentials to the DB
+		
 		String sql2 = "UPDATE cst341nproject.products SET product_Id = ?, product_Name = ?, product_Price = ?, "
-				+ "product_Stock_Status = ? WHERE product_Id = 129";
+				+ "product_Stock_Stadus = ? WHERE product_Id = 131";
+		try (PreparedStatement initiate1 = con.getConnection().prepareStatement(sql2)){
+		
+		initiate1.setInt(1, p_Id);
+		initiate1.setString(2, p_Name);
+		initiate1.setString(3, p_Price);
+		initiate1.setString(4, inventory);
 
-		PreparedStatement ps2 = ((Connection) con).prepareStatement(sql2);
-		ps2.setInt(1, p_Id);
-		ps2.setString(2, p_Name);
-		ps2.setString(3, p_Price);
-		ps2.setString(4, inventory);
-
-		ps2.executeUpdate();
+		initiate1.executeUpdate();
 
 		// 5] Check to see if the data was written to the DB throws exception
 		String sql3 = "SELECT * FROM cst341nproject.products WHERE product_Id = ?";
-		PreparedStatement ps3 = ((Connection) con).prepareStatement(sql3);
-		ps3.setInt(1, id);
-		ResultSet results3 = ps3.executeQuery();
+		try (PreparedStatement initiate2 = con.getConnection().prepareStatement(sql3)){
+			initiate2.setInt(1, id);
+		ResultSet results3 = initiate2.executeQuery();
 		results3.next();
+		}
+		
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		}
+		}
 
 	}
 
 	private void deleteProduct() throws SQLException {
-		
+
 		Scanner sc = new Scanner(System.in);
-		
-		Statement stmt = null;
+
 		System.out.println("Delete Product: ");
-		stmt = (Statement) ((Connection) con).createStatement();
-		String sql = "DELETE FROM cst341nproject.products " + "WHERE product_Id = 129";
-		((java.sql.Statement) stmt).executeUpdate(sql);
+		System.out.println("===================");
+		System.out.println("What Product Id would you like to delete? ");
+		int product_Id = sc.nextInt();
+		sc.nextLine();
+
+		String sql12 = "DELETE FROM cst341nproject.products WHERE product_Id = ?";
+
+		try (PreparedStatement initiate = con.getConnection().prepareStatement(sql12)) {
+
+			initiate.setInt(1, product_Id);
+			initiate.executeUpdate();
+			System.out.println(initiate);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		// Now you can extract all the records
 		// to see the remaining records
-		
+
 	}
 
 }
