@@ -19,12 +19,6 @@ public class DBConnect {
         try {
         	try {
 				Class.forName("com.mysql.cj.jdbc.Driver");
-				
-				 DBConnect.conn = DriverManager.getConnection(URL, USER, PASS);
-            } catch (SQLException ex) {
-                System.out.println("Database Connection Creation Failed : " + ex.getMessage());
-				
-				
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
