@@ -7,10 +7,6 @@ public class Driver {
 		gcu.open();
 
 	}
-	//Daniel Rumfelt
-	public static void helloD() {
-		System.out.println("Hi Im Daniel");
-	}
 	
 
 }
